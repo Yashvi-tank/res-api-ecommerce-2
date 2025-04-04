@@ -2,7 +2,11 @@ const express = require("express")
 const app = express()
 const port = process.env.PORT || 3000;
 const userRoutes = require("./routes/users")
+const path = require("path")
 
+
+// image folder
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 //Db connection
 const connectDB = require("./utils/db");
 connectDB();
