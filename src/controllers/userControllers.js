@@ -32,4 +32,34 @@ try {
   }
 }
 
+exports.userLogin = async (req, res) => {
+    
+    try {
+      const { email, password } = req.body;
+      //find the user in the database
+      const foundUser = await User.findOne({ email})
+      if (!foundUser) {
+        throw new Error("Invalid credentials")
+      } 
+      // compare the password from found user with password from request
+      const passwordMatch = await bcrypt.compare(password, foundUser.password)
+      if (!passwordMatch) {
+        throw new Error("Invalid credentials")
+      }
 
+      //create a token
+      const token = jwt.sign(
+        {
+            userId: foundUser._id,
+        },
+        process.env.SECRET_TOKEN_KEY,
+        {expiresIn: "24h"}
+      )
+      res.status(200).json(token)
+    } catch (err) {
+      res.status(401).json({
+        message: err.message,
+      })
+    }
+  
+}
