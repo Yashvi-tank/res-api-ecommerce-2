@@ -18,7 +18,7 @@ app.use((req, res, next) => {
 });
 
 // Middleware to hash password
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const saltRounds = 10; // how many times the password is hashed
 
 exports.hashPassword = (req, res, next) => {
