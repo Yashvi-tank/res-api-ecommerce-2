@@ -8,20 +8,28 @@ exports.userSignUp = async (req, res) => {
   const { firstName, lastName, email, password, role, imageUrl } = req.body;
   const hashedPassword = req.hashedPassword;
   // create new user
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-    imageUrl,
-    inventory: [],
-  });
+try {
+    const newUser = new User({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        role,
+        imageUrl,
+        inventory: [],
+    });
 
   // save the user to the database
   
     const savedUser = await newUser.save();
     res.status(201).json({firstName: savedUser.firstName, email: savedUser.email, role: savedUser.role});
-  } 
+
+  } catch (err) {
+    //catch any errors
+    res.status(400).json({
+        message: err.message,
+    })
+  }
+}
 
 
