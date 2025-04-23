@@ -1,6 +1,6 @@
-const sharp = require("sharp")
-const path = require("path")
-const fs = require("fs") // Required to delete files
+const sharp = require("sharp");
+const path = require("path");
+const fs = require("fs");
 
 /**
  * Middleware to process and compress images using Sharp.
@@ -8,64 +8,50 @@ const fs = require("fs") // Required to delete files
  * @param {number} quality - The quality of the output image (0-100).
  * @returns {Function} - Express middleware function.
  */
-
 const sharpMiddleware = (outputFormat = "webp", quality = 80) => {
- return async (req, res, next) => {
-  if (!req.file) {
-   return next() // Skip if no file is uploaded
-  }
-  try {
-   const inputPath = req.file.path // Temporary file path from Multer
-
-   const filenameWithoutExtension = req.file.filename
-    .split(".")
-    .slice(0, -1)
-    .join(".") // Remove the file extension
-   const outputPath = path.join(
-    "uploads",
-    `${filenameWithoutExtension}.${outputFormat}`
-   ) // Output file path
-
-   // Process the image using Sharp
-   await sharp(inputPath)
-    .toFormat(outputFormat, { quality: quality }) // Convert to the desired format
-    .toFile(outputPath)
-
-   // Delete the original file (uncompressed file saved by Multer)
-   fs.unlink(inputPath, (err) => {
-    if (err) {
-     console.error("Error deleting original file:", err)
-    } else {
-     console.log("Original file deleted successfully:", inputPath)
-    }
-   })
-
-   // Replace the original file with the processed file
-   req.file.processedPath = outputPath // Add the processed file path to the request object
-   req.file.mimetype = `image/${outputFormat}` // Update the MIME type
-   req.file.originalname = `${filenameWithoutExtension}.${outputFormat}` // Update the original name
-
-   next() // Proceed to the next middleware or route handler
-  } catch (err) {
-   console.error("Error processing image with Sharp:", err)
-   res.status(500).json({ error: "Failed to process image" })
-  }
- }
-}
-
-// Update user route
-// The route is protected by the verifyToken middleware
-router.put("/userUpdate", verifyToken, upload.single("image"), sharpMiddleware(), (req, res) => {
-  
+  return async (req, res, next) => {
     if (!req.file) {
-     return res.status(400).json({ error: "Error uploading the file. Wrong format ?" })
+      return next();
     }
-    console.log(req.body) // Logs the form fields
-    console.log(req.file) // Logs the uploaded file details
-    console.log(req.userId) // From the verifyToken middleware
-    const fileUrl =
-     req.protocol + "://" + req.get("host") + "/" + req.file.processedPath
-    res.json({ message: "User response reached", fileUrl })
-   })
-module.exports = sharpMiddleware
+    try {
+      console.log('Processing file:', req.file);
+      const inputPath = req.file.path;
+      const filename = path.parse(req.file.filename).name;
+      const outputDir = path.join(__dirname, "../../uploads");
+
+      
+      fs.mkdirSync(outputDir, { recursive: true });
+
+      const outputPath = path.join(outputDir, `${filename}.${outputFormat}`);
+      console.log('Input path:', inputPath);
+      console.log('Output path:', outputPath);
+
+      await sharp(inputPath)
+        .resize(800)
+        .toFormat(outputFormat, { quality })
+        .toFile(outputPath);
+
+      console.log('Image processed successfully');
+
+      
+      if (inputPath !== outputPath) {
+        fs.unlinkSync(inputPath);
+        console.log('Original file deleted');
+      }
+
  
+      req.file.filename = `${filename}.${outputFormat}`;
+      req.file.path = outputPath;
+      req.file.mimetype = `image/${outputFormat}`;
+
+      console.log('Updated file info:', req.file);
+      next();
+    } catch (error) {
+      console.error("Sharp middleware error:", error);
+      
+      next(error);
+    }
+  };
+};
+
+module.exports = sharpMiddleware;

@@ -1,65 +1,91 @@
-const User = require("../models/userModels");
-const { hashPassword } = require("../middleware/passencrypt");
+const User = require("../models/User");
+const { hashPassword } = require("../middleware/password-encrypt");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 
 exports.userSignUp = async (req, res) => {
-    // getting the data from the request
   const { firstName, lastName, email, password, role, imageUrl } = req.body;
   const hashedPassword = req.hashedPassword;
-  // create new user
-try {
-    const newUser = new User({
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        role,
-        imageUrl,
-        inventory: [],
+  const newUser = new User({
+    firstName,
+    lastName,
+    email,
+    password: hashedPassword,
+    role,
+    imageUrl,
+    inventory: [],
+  });
+
+  try {
+    const savedUser = await newUser.save();
+    res.status(201).json(savedUser);
+  } catch (err) {
+    res.status(400).json({ message: err });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { firstName, lastName, email, password, role, imageUrl } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const user = new User({
+      firstName,
+      lastName,
+      email,
+      password: req.hashedPassword,
+      role,
+      imageUrl,
+      inventory: [],
     });
 
-  // save the user to the database
-  
-    const savedUser = await newUser.save();
-    res.status(201).json({firstName: savedUser.firstName, email: savedUser.email, role: savedUser.role});
-
-  } catch (err) {
-    //catch any errors
-    res.status(400).json({
-        message: err.message,
-    })
+    await user.save();
+    res.status(201).json({ message: "User created successfully" });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error creating user", error: error.message });
   }
-}
+};
 
 exports.userLogin = async (req, res) => {
-    
-    try {
-      const { email, password } = req.body;
-      //find the user in the database
-      const foundUser = await User.findOne({ email})
-      if (!foundUser) {
-        throw new Error("Invalid credentials")
-      } 
-      // compare the password from found user with password from request
-      const passwordMatch = await bcrypt.compare(password, foundUser.password)
-      if (!passwordMatch) {
-        throw new Error("Invalid credentials")
-      }
+  try {
+    const { email, password } = req.body;
 
-      //create a token
-      const token = jwt.sign(
-        {
-            userId: foundUser._id,
-        },
-        process.env.SECRET_TOKEN_KEY,
-        {expiresIn: "24h"}
-      )
-      res.status(200).json(token)
-    } catch (err) {
-      res.status(401).json({
-        message: err.message,
-      })
+    // Find user
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
     }
-  
-}
+
+    // Validate password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // Create token
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error logging in", error: error.message });
+  }
+};

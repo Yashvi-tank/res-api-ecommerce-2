@@ -1,77 +1,45 @@
-const express = require("express")
-const app = express()
-const port = process.env.PORT || 3000;
+require('dotenv').config();
+const express = require("express");
+const path = require("path");
+const fs = require("fs");
+const app = express();
+const port = 3000;
 const userRoutes = require("./routes/users")
-const path = require("path")
-
-
-// image folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")))
-//Db connection
+const { hashPassword } = require("./middleware/password-encrypt")
+const requestLogger = require('./middleware/logger');
 const connectDB = require("./utils/db");
-connectDB();
-
-//cors middleware
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    next();
-});
-
-// Middleware to hash password
-const bcrypt = require("bcryptjs");
-const saltRounds = 10; // how many times the password is hashed
-
-exports.hashPassword = (req, res, next) => {
-  bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-    if (err) {
-      return res.status(500).json({ error: "Error hashing password" });
-    }
-    req.hashedPassword = hash;
-    console.log("Your hashed password:", hash);
-    next();
-  });
-};
-
-const { hashPassword } = require("./middleware/passencrypt");
-
-
-// ROUTES
-app.use("/api/users", userRoutes)
+const productRoutes = require("./routes/products");
+const invoiceRoutes = require("./routes/invoices");
+const cors = require('cors');
 
 // MIDDLEWARE
-app.use((req, res, next) => {
-    const now = Date.now()
-    req.requestTime = now
-    next();
-   });
+app.use(express.json());
+app.use(cors({
+  origin: ['http://localhost:5173', 'https://epita-server-sided-javascript.onrender.com'],
+  credentials: true
+}));
 
+// Ensure uploads directory exists
+const uploadsPath = path.join(__dirname, '../uploads');
+fs.mkdirSync(uploadsPath, { recursive: true });
 
+// Serve static files
+app.use(express.static('src/public'));
+app.use('/uploads', express.static(uploadsPath));
 
-   // arithmetic middleware
-   app.use(express.json());
-   app.use((req, res, next) => {
-    const calculation = 4 * 7; 
-    req.calculattedValue = calculation;
-    next();
-   });
+// Connect to database
+connectDB();
 
-// combined response route
-   app.get("/", (req, res) => {
-    res.json({
-        time: req.requestTime,
-        calculatedValue: req.calculattedValue,
-        message: "Welcome to my world!"
-    });
+// ROUTES
+app.get("/", (req, res) => {
+  res.send("Welcome to my API ! e-commerce backed 🤳")
 });
 
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use(requestLogger);
 
-
-
-
-app.listen(port,() => {
-    console.log(`Example app listening at http://localhost:${3000}`);
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
 });
