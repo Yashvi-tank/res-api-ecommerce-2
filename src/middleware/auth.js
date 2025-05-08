@@ -1,23 +1,25 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const User = require("../models/userModel"); // make sure path is correct
 
-const auth = async (req, res, next) => {
+exports.verifyToken = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(403).send({ message: "No token provided!" });
+  }
+
+  const token = req.headers.authorization.split(" ")[1]; // Get token from header
+
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
+    const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN_KEY); // verify token
+    req.userId = decodedToken.userId;
+
+    // Double-check if user exists in the DB
+    const user = await User.findById(req.userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
 
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      return res.status(401).json({ message: 'No token, authorization denied' });
-    }
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
+    next(); // move to the next handler
+  } catch (err) {
+    return res.status(401).send({ message: "Unauthorized!" });
   }
 };
-
-module.exports = auth;

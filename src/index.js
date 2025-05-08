@@ -1,45 +1,72 @@
-require('dotenv').config();
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
+const express = require('express');
 const app = express();
-const port = 3000;
-const userRoutes = require("./routes/users")
-const { hashPassword } = require("./middleware/password-encrypt")
-const requestLogger = require('./middleware/logger');
-const connectDB = require("./utils/db");
+const port = process.env.PORT || 3000;
+const userRoutes = require("./routes/users");
 const productRoutes = require("./routes/products");
 const invoiceRoutes = require("./routes/invoices");
-const cors = require('cors');
 
-// MIDDLEWARE
-app.use(express.json());
-app.use(cors({
-  origin: ['http://localhost:5173', 'https://epita-server-sided-javascript.onrender.com'],
-  credentials: true
-}));
-
-// Ensure uploads directory exists
-const uploadsPath = path.join(__dirname, '../uploads');
-fs.mkdirSync(uploadsPath, { recursive: true });
-
-// Serve static files
-app.use(express.static('src/public'));
-app.use('/uploads', express.static(uploadsPath));
-
-// Connect to database
+const connectDB = require("./utils/db");
 connectDB();
 
-// ROUTES
-app.get("/", (req, res) => {
-  res.send("Welcome to my API ! e-commerce backed 🤳")
+// CORS middleware
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
 });
 
+// Middleware
+app.use(express.json());
+app.use((req, res, next) => {
+  req.calculatedValue = 4 * 7;
+  next();
+});
+
+// Middleware to hash password
+const bcrypt = require("bcrypt");
+const saltRounds = 10; // how many times the password is hashed
+
+exports.hashPassword = (req, res, next) => {
+  bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+    if (err) {
+      return res.status(500).json({ error: "Error hashing password" });
+    }
+    req.hashedPassword = hash;
+    console.log("Your hashed password:", hash);
+    next();
+  });
+};
+
+const { hashPassword } = require("./middleware/passencrypt");
+
+// Route for /api/users
 app.use("/api/users", userRoutes);
+
+app.get("/", (req, res) => {
+  res.send("Welcome to my API! e-commerce backend 🤳");
+});
+
+app.post("/", hashPassword, (req, res) => {
+  // Get the data from the request
+  const { firstName, email } = req.body;
+  const hashedPassword = req.hashedPassword;
+
+  res.json({
+    firstName,
+    email,
+    hashedPassword,
+    _id: "randomId4567",
+  });
+});
+
+
 app.use("/api/products", productRoutes);
 app.use("/api/invoices", invoiceRoutes);
-app.use(requestLogger);
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });

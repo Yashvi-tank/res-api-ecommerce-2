@@ -1,6 +1,6 @@
-const sharp = require("sharp");
-const path = require("path");
-const fs = require("fs");
+const sharp = require("sharp")
+const path = require("path")
+const fs = require("fs") // Required to delete files
 
 /**
  * Middleware to process and compress images using Sharp.
@@ -8,50 +8,49 @@ const fs = require("fs");
  * @param {number} quality - The quality of the output image (0-100).
  * @returns {Function} - Express middleware function.
  */
+
 const sharpMiddleware = (outputFormat = "webp", quality = 80) => {
-  return async (req, res, next) => {
-    if (!req.file) {
-      return next();
+ return async (req, res, next) => {
+  if (!req.file) {
+   return next() // Skip if no file is uploaded
+  }
+  try {
+   const inputPath = req.file.path // Temporary file path from Multer
+
+   const filenameWithoutExtension = req.file.filename
+    .split(".")
+    .slice(0, -1)
+    .join(".") // Remove the file extension
+   const outputPath = path.join(
+    "uploads",
+    `${filenameWithoutExtension}.${outputFormat}`
+   ) // Output file path
+
+   // Process the image using Sharp
+   await sharp(inputPath)
+    .toFormat(outputFormat, { quality: quality }) // Convert to the desired format
+    .toFile(outputPath)
+
+   // Delete the original file (uncompressed file saved by Multer)
+   fs.unlink(inputPath, (err) => {
+    if (err) {
+     console.error("Error deleting original file:", err)
+    } else {
+     console.log("Original file deleted successfully:", inputPath)
     }
-    try {
-      console.log('Processing file:', req.file);
-      const inputPath = req.file.path;
-      const filename = path.parse(req.file.filename).name;
-      const outputDir = path.join(__dirname, "../../uploads");
+   })
 
-      
-      fs.mkdirSync(outputDir, { recursive: true });
+   // Replace the original file with the processed file
+   req.file.processedPath = outputPath // Add the processed file path to the request object
+   req.file.mimetype = `image/${outputFormat}` // Update the MIME type
+   req.file.originalname = `${filenameWithoutExtension}.${outputFormat}` // Update the original name
 
-      const outputPath = path.join(outputDir, `${filename}.${outputFormat}`);
-      console.log('Input path:', inputPath);
-      console.log('Output path:', outputPath);
+   next() // Proceed to the next middleware or route handler
+  } catch (err) {
+   console.error("Error processing image with Sharp:", err)
+   res.status(500).json({ error: "Failed to process image" })
+  }
+ }
+}
 
-      await sharp(inputPath)
-        .resize(800)
-        .toFormat(outputFormat, { quality })
-        .toFile(outputPath);
-
-      console.log('Image processed successfully');
-
-      
-      if (inputPath !== outputPath) {
-        fs.unlinkSync(inputPath);
-        console.log('Original file deleted');
-      }
-
- 
-      req.file.filename = `${filename}.${outputFormat}`;
-      req.file.path = outputPath;
-      req.file.mimetype = `image/${outputFormat}`;
-
-      console.log('Updated file info:', req.file);
-      next();
-    } catch (error) {
-      console.error("Sharp middleware error:", error);
-      
-      next(error);
-    }
-  };
-};
-
-module.exports = sharpMiddleware;
+module.exports = sharpMiddleware

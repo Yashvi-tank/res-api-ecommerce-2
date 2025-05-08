@@ -1,17 +1,21 @@
+require("dotenv").config();
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-dotenv.config()
 
+const mongoConnection = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/e_commerce_db"; // fallback for local
 
-//determine the environment
-const isProduction = process.env.NODE_ENV === "production"
+mongoose.set("strictQuery", true);
 
-// set the connection string based on environment
-const uri = isProduction
-    ? process.env.DB_CONNECTION
-    : process.env.LOCAL_DB_CONNECTION
+const connectDB = async () => {
+    try {
+        await mongoose.connect(mongoConnection, {
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+        });
+        console.log("✅ Connected to MongoDB");
+    } catch (error) {
+        console.error("❌ No DB connection!", error);
+        process.exit(1);
+    }
+};
 
-const mongoConnection = uri
-
-mongoose.set("strictQuery", true)
-
+module.exports = connectDB;

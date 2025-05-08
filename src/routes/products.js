@@ -1,18 +1,29 @@
 const express = require("express");
 const router = express.Router();
-const { createProduct, getProducts, getProductById, updateProduct } = require("../controllers/productController");
-const auth = require('../middleware/auth');
-const adminAuth = require('../middleware/adminAuth');
+const { verifyToken } = require("../middleware/auth");
+const upload = require("../middleware/multerConfig");
 
-// Public routes 
-router.get("/", getProducts);
+const {
+  createProduct,
+  getAllProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+} = require("../controllers/productControllers");
+
+// Create a product (protected + image upload)
+router.post("/", verifyToken, upload.single("image"), createProduct);
+
+// Get all products (public)
+router.get("/", getAllProducts);
+
+// Get a specific product (public)
 router.get("/:id", getProductById);
 
-// Protected routes 
-router.use(auth);
+// Update a product (protected)
+router.put("/:id", verifyToken, updateProduct);
 
-// Admin only routes
-router.post("/", adminAuth, createProduct);
-router.put("/:id", adminAuth, updateProduct);
+// Delete a product (protected)
+router.delete("/:id", verifyToken, deleteProduct);
 
 module.exports = router;

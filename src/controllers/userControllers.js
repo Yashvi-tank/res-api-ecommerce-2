@@ -1,91 +1,107 @@
-const User = require("../models/User");
-const { hashPassword } = require("../middleware/password-encrypt");
+const User = require("../models/userModel");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
 
-exports.userSignUp = async (req, res) => {
-  const { firstName, lastName, email, password, role, imageUrl } = req.body;
-  const hashedPassword = req.hashedPassword;
-  const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    password: hashedPassword,
-    role,
-    imageUrl,
-    inventory: [],
-  });
-
-  try {
-    const savedUser = await newUser.save();
-    res.status(201).json(savedUser);
-  } catch (err) {
-    res.status(400).json({ message: err });
-  }
-};
-
-exports.createUser = async (req, res) => {
-  try {
-    const { firstName, lastName, email, password, role, imageUrl } = req.body;
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
-    }
-
-    const user = new User({
-      firstName,
-      lastName,
-      email,
-      password: req.hashedPassword,
-      role,
-      imageUrl,
-      inventory: [],
-    });
-
-    await user.save();
-    res.status(201).json({ message: "User created successfully" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error creating user", error: error.message });
-  }
-};
-
-exports.userLogin = async (req, res) => {
+// -------------------- USER LOGIN --------------------
+exports.userLogIn = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(400).json({ message: "User not found" });
+    // 1. Find user in DB
+    const foundUser = await User.findOne({ email });
+    if (!foundUser) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Validate password
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+    // 2. Compare passwords
+    const passwordMatch = await bcrypt.compare(password, foundUser.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Create token
+    // 3. Create JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
+      { userId: foundUser._id },
+      process.env.SECRET_TOKEN_KEY,
       { expiresIn: "24h" }
     );
 
-    res.json({
+    // 4. Return success with token and user info
+    res.status(200).json({
+      message: "Login successful",
       token,
       user: {
-        id: user._id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
+        id: foundUser._id,
+        email: foundUser.email,
+        role: foundUser.role,
+        firstName: foundUser.firstName,
       },
     });
+
   } catch (error) {
-    res.status(500).json({ message: "Error logging in", error: error.message });
+    console.error("Login error:", error.message);
+    res.status(500).json({ message: "Login failed", error: error.message });
+  }
+};
+
+// -------------------- USER SIGNUP --------------------
+exports.userSignUp = async (req, res) => {
+  try {
+    console.log("Signup request received:", req.body);
+
+    const { firstName, lastName, email, imageUrl, role } = req.body;
+    const hashedPassword = req.hashedPassword;
+
+    if (!firstName || !lastName || !email || !hashedPassword || !role) {
+      return res.status(400).json({
+        message: "Missing required fields. Please provide all necessary data.",
+      });
+    }
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      imageUrl,
+      password: hashedPassword,
+      role,
+      inventory: [],
+    });
+
+    const savedUser = await newUser.save();
+
+    res.status(201).json({
+      firstName: savedUser.firstName,
+      email: savedUser.email,
+      role: savedUser.role,
+      imageUrl: savedUser.imageUrl,
+    });
+
+  } catch (error) {
+    console.error("Signup error:", error.message);
+
+    if (error.name === "ValidationError") {
+      return res.status(400).json({ message: error.message });
+    }
+
+    res.status(500).json({ message: "Something went wrong during signup." });
+  }
+};
+
+exports.getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.userId).select("-password"); // Don't return password
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    res.json({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      role: user.role,
+    });
+  } catch (error) {
+    console.error("Profile error:", error.message);
+    res.status(500).json({ message: "Something went wrong." });
   }
 };

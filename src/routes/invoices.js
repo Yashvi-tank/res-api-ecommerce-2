@@ -1,23 +1,28 @@
 const express = require("express");
 const router = express.Router();
+const { verifyToken } = require("../middleware/auth");
+
 const {
   createInvoice,
   getInvoices,
   getInvoiceById,
-  updateInvoiceStatus
-} = require("../controllers/invoiceController");
-const auth = require('../middleware/auth');
-const adminAuth = require('../middleware/adminAuth');
+  updateInvoice,
+  deleteInvoice,
+} = require("../controllers/invoiceControllers");
 
-// Protect all routes with authentication
-router.use(auth);
+// Create invoice (protected)
+router.post("/", verifyToken, createInvoice);
 
-// Regular user routes
-router.post("/", createInvoice);
-router.get("/:id", getInvoiceById);
+// Get all invoices (protected)
+router.get("/", verifyToken, getInvoices);
 
-// Admin only routes
-router.get("/", adminAuth, getInvoices);  
-router.patch("/:id/status", adminAuth, updateInvoiceStatus);  
+// Get specific invoice by ID (protected)
+router.get("/:id", verifyToken, getInvoiceById);
+
+// Update invoice (protected)
+router.put("/:id", verifyToken, updateInvoice);
+
+// Delete invoice (protected)
+router.delete("/:id", verifyToken, deleteInvoice);
 
 module.exports = router;
