@@ -1,72 +1,42 @@
+// index.js
+require('dotenv').config();         // loads MONGO_URI & PORT from .env
 const express = require('express');
+const mongoose = require('mongoose');
 const app = express();
-const port = process.env.PORT || 3000;
-const userRoutes = require("./routes/users");
-const productRoutes = require("./routes/products");
-const invoiceRoutes = require("./routes/invoices");
 
-const connectDB = require("./utils/db");
-connectDB();
+const PORT = process.env.PORT || 3000;
+const MONGO = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/myshop';
 
-// CORS middleware
+// 1) CORS + JSON middleware
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header('Access-Control-Allow-Origin','*');
+  res.header('Access-Control-Allow-Headers','Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Methods','GET,POST,PUT,DELETE,OPTIONS');
   next();
 });
-
-// Middleware
 app.use(express.json());
-app.use((req, res, next) => {
-  req.calculatedValue = 4 * 7;
-  next();
+
+// 2) Your routes (unchanged)
+app.use('/api/users', require('./routes/users'));
+app.use('/api/products', require('./routes/products'));
+app.use('/api/invoices', require('./routes/invoices'));
+
+// 3) Test endpoints
+app.get('/', (req, res) => res.send('🚀 API is live'));
+app.post('/', (req, res) => {
+  res.json({ received: req.body });
 });
 
-// Middleware to hash password
-const bcrypt = require("bcrypt");
-const saltRounds = 10; // how many times the password is hashed
-
-exports.hashPassword = (req, res, next) => {
-  bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
-    if (err) {
-      return res.status(500).json({ error: "Error hashing password" });
-    }
-    req.hashedPassword = hash;
-    console.log("Your hashed password:", hash);
-    next();
-  });
-};
-
-const { hashPassword } = require("./middleware/passencrypt");
-
-// Route for /api/users
-app.use("/api/users", userRoutes);
-
-app.get("/", (req, res) => {
-  res.send("Welcome to my API! e-commerce backend 🤳");
-});
-
-app.post("/", hashPassword, (req, res) => {
-  // Get the data from the request
-  const { firstName, email } = req.body;
-  const hashedPassword = req.hashedPassword;
-
-  res.json({
-    firstName,
-    email,
-    hashedPassword,
-    _id: "randomId4567",
-  });
-});
-
-
-app.use("/api/products", productRoutes);
-app.use("/api/invoices", invoiceRoutes);
-
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
-});
+// 4) Connect to Mongo AND only then start Express
+(async () => {
+  try {
+    await mongoose.connect(MONGO);
+    console.log('✅ MongoDB connected');
+    app.listen(PORT, () => {
+      console.log(`🚀 Server listening on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Mongo connection error:', err.message);
+    process.exit(1);
+  }
+})();

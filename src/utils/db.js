@@ -1,21 +1,16 @@
-require("dotenv").config();
-const mongoose = require("mongoose");
-
-const mongoConnection = process.env.MONGODB_URI || "mongodb://127.0.0.1:27017/e_commerce_db"; // fallback for local
-
-mongoose.set("strictQuery", true);
+// src/utils/db.js
+require('dotenv').config();
+const mongoose = require('mongoose');
 
 const connectDB = async () => {
-    try {
-        await mongoose.connect(mongoConnection, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true
-        });
-        console.log("✅ Connected to MongoDB");
-    } catch (error) {
-        console.error("❌ No DB connection!", error);
-        process.exit(1);
-    }
+  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/ecommerce';
+  try {
+    await mongoose.connect(uri);    // no extra options needed in Mongoose 8+
+    console.log('✅ MongoDB connected');
+  } catch (err) {
+    console.error('❌ No DB connection!', err);
+    process.exit(1);
+  }
 };
 
 module.exports = connectDB;
