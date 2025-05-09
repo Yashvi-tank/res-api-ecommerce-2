@@ -1,70 +1,140 @@
-# Getting Started with Create React App
+# VelvetBeauty Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is the frontend application for the VelvetBeauty e‑commerce platform, built with React and Vite.
+
+## Table of Contents
+
+* [Features](#features)
+* [Prerequisites](#prerequisites)
+* [Getting Started](#getting-started)
+* [Available Scripts](#available-scripts)
+* [Environment Variables](#environment-variables)
+* [Project Structure](#project-structure)
+* [Styling](#styling)
+* [Deployment](#deployment)
+* [Learn More](#learn-more)
+
+## Features
+
+* **Product Listing**: Fetch and display products from the API
+* **Product Details**: View individual product pages
+* **Cart Management**: Add/remove items in the shopping cart
+* **User Authentication**: Signup & login pages with JWT integration
+* **Responsive Design**: Mobile-friendly layout
+
+## Prerequisites
+
+* **Node.js** v16+ (comes with npm)
+* **npm** v8+
+
+## Getting Started
+
+1. **Clone the repository**
+
+   ```bash
+   git clone https://github.com/Yashvi-tank/res-api-ecommerce-2/tree/frontend
+   cd frontend
+   ```
+
+2. **Install dependencies**
+
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+
+   Copy the example env file and adjust:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` and set your API endpoint:
+
+   ```ini
+   VITE_API_BASE_URL=https://api.example.com
+   ```
+
+4. **Run in development mode**
+
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:5173](http://localhost:5173) to view in your browser.
 
 ## Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+| Script            | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Build for production     |
+| `npm run preview` | Preview production build |
+| `npm run lint`    | Run ESLint checks        |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Environment Variables
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Rename `.env.example` to `.env` and set:
 
-### `npm test`
+```ini
+# Base URL of the backend API
+VITE_API_BASE_URL=http://localhost:3000/api
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+> **Note:** Variables must start with `VITE_` to be exposed to the client.
 
-### `npm run build`
+## Project Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+public/               # Static assets (favicon, index.html)
+src/
+ ├── components/      # Reusable UI components
+ ├── context/         # React context providers (Auth, Cart, Theme)
+ ├── pages/           # Route-level components (Home, Login, SignUp, ProductDetail)
+ ├── services/        # API client setup (axios instance)
+ ├── styles/          # CSS modules and global styles
+ ├── App.jsx          # Root component with routing
+ ├── main.jsx         # Entry point
+ └── index.css        # Global styles
+vite.config.js        # Vite configuration
+package.json          # npm scripts & dependencies
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Styling
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This project uses plain CSS imported into each component. You can find style sheets under `src/styles/`:
 
-### `npm run eject`
+* `Auth.css` — Login & Signup pages
+* `HomePage.css` — Home page layout & product grid
+* `CreateProduct.css` — Add Product form
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Feel free to integrate Tailwind, SASS, or CSS‑in‑JS if desired.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Deployment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Build the app:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+   ```bash
+   npm run build
+   ```
+
+2. Serve the `dist/` folder with any static hosting (Netlify, Vercel, Surge, render etc.).
+
+For example, with [Render](https://render.com):
+
+
 
 ## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+* **React**: [https://reactjs.org/](https://reactjs.org/)
+* **Vite**: [https://vitejs.dev/](https://vitejs.dev/)
+* **React Router**: [https://reactrouter.com/](https://reactrouter.com/)
+* **Axios**: [https://axios-http.com/](https://axios-http.com/)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+---
 
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+© 2025 VelvetBeauty. All rights reserved.
+By - Yashvi TANK
