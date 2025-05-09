@@ -1,0 +1,119 @@
+/* src/styles/HomePage.css */
+
+.posy-home {
+    font-family: 'Playfair Display', serif;
+    color: #44325c;
+  }
+  
+  /* HERO */
+  .hero {
+    position: relative;
+    height: 60vh;
+    background: url('/hero-bg.jpg') center/cover no-repeat;
+  }
+  .hero-overlay {
+    position: absolute; inset:0;
+    background: rgba(255,255,255,0.7);
+  }
+  .hero-content {
+    position: relative;
+    text-align: center;
+    top: 50%; transform: translateY(-50%);
+  }
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: .5rem;
+  }
+  .hero-content p {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+  }
+  .btn-primary {
+    background: #cfa2d8;
+    color: #fff;
+    border: none;
+    padding: .75rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  /* CATEGORIES */
+  .categories {
+    display: flex; justify-content: space-around;
+    margin: 2rem 0;
+  }
+  .cat-card {
+    background: #e8dcec;
+    padding: 2rem;
+    flex: 1;
+    text-align: center;
+    margin: 0 .5rem;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  /* PRODUCTS */
+  .products {
+    text-align: center;
+    padding: 2rem 0;
+  }
+  .products .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(200px,1fr));
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  .prod-card {
+    background: #fff; padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .prod-card img {
+    width:100%; height:150px; object-fit:cover;
+    border-radius:4px;
+  }
+  .btn-secondary {
+    background: #f2e6f5;
+    color: #44325c;
+    border: none;
+    padding: .5rem 1.5rem;
+    margin-top: 1rem;
+    cursor: pointer;
+  }
+  
+  /* JOIN LIST */
+  .join-list {
+    background: #f2e6f5;
+    padding: 2rem;
+    text-align: center;
+  }
+  .join-list form {
+    display: inline-flex;
+    border: 1px solid #ccc;
+    border-radius: 40px;
+    overflow: hidden;
+  }
+  .join-list input {
+    border: none; padding: .75rem 1rem;
+    outline: none; width: 200px;
+  }
+  .join-list button {
+    background: #cfa2d8;
+    border: none;
+    padding: .75rem 1rem;
+    cursor: pointer;
+  }
+  
+  /* ABOUT */
+  .about-store {
+    display: flex; align-items: center;
+    padding: 2rem;
+  }
+  .about-store img {
+    width: 200px; border-radius: 50%;
+    margin-right: 2rem;
+  }
+  .about-store h3 {
+    margin-bottom: .5rem;
+  }
+  

@@ -1,53 +1,34 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../services/api.js';
+
+import React, { useState } from "react";
+import api from "../services/api.js";
+import "../styles/CreateProduct.css";
 
 export default function CreateProduct() {
   const [form, setForm] = useState({
-    name: '',
-    description: '',
-    price: '',
-    stock: ''
+    name: "", description: "", price: "", imageUrl: ""
   });
-  const navigate = useNavigate();
 
-  const handleChange = e =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async e => {
+  const handle = e => setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+  const submit = e => {
     e.preventDefault();
-    try {
-      await api.post('/products', {
-        ...form,
-        price: parseFloat(form.price),
-        stock: parseInt(form.stock, 10),
-      });
-      navigate('/');
-    } catch (err) {
-      alert(err.response?.data?.error || 'Create failed');
-    }
+    api.post("/products", form)
+       .then(() => alert("Created!"))
+       .catch(err => alert(err.response.data.message));
   };
 
   return (
-    <div className="form-container">
-      <h2>Create Product</h2>
-      <form onSubmit={handleSubmit}>
-        {['name','description','price','stock'].map(field => (
-          <div className="mb-3" key={field}>
-            <label className="form-label">
-              {field.charAt(0).toUpperCase() + field.slice(1)}
-            </label>
-            <input
-              name={field}
-              type={field === 'price' || field === 'stock' ? 'number' : 'text'}
-              className="form-control"
-              value={form[field]}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        ))}
-        <button className="btn btn-primary w-100">Save</button>
+    <div className="add-page">
+      <h2>Add New Product</h2>
+      <form onSubmit={submit}>
+        <label>Name</label>
+        <input name="name" value={form.name} onChange={handle}/>
+        <label>Description</label>
+        <textarea name="description" value={form.description} onChange={handle}/>
+        <label>Price</label>
+        <input name="price" value={form.price} onChange={handle}/>
+        <label>Image URL</label>
+        <input name="imageUrl" value={form.imageUrl} onChange={handle}/>
+        <button type="submit">Create</button>
       </form>
     </div>
   );

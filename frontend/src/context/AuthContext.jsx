@@ -1,45 +1,40 @@
 import React, { createContext, useState, useEffect } from "react";
-import {
-  auth,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-} from "../services/firebaseConfig.js";   // ← note the .js
+import api from "../services/api.js";
 
 export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
-  // Watch Firebase Auth state
+  // On mount: if we have a token, fetch profile
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
-      if (firebaseUser) {
-        // Get the ID token for auth header
-        const token = await firebaseUser.getIdToken();
-        localStorage.setItem("token", token);
-
-        // Optionally, you can pull additional profile info here
-        setUser({ uid: firebaseUser.uid, email: firebaseUser.email });
-      } else {
-        localStorage.removeItem("token");
-        setUser(null);
-      }
-    });
-    return unsubscribe;
+    const token = localStorage.getItem("token");
+    if (token) {
+      api.get("/users/profile")
+        .then(response => setUser(response.data))
+        .catch(() => localStorage.removeItem("token"));
+    }
   }, []);
 
-  const signup = async ({ email, password }) => {
-    await createUserWithEmailAndPassword(auth, email, password);
-    // onAuthStateChanged will fire and do the rest
+  const signup = async ({ firstName, lastName, email, password, role, imageUrl }) => {
+    // Create the user
+    await api.post("/users/signup", { firstName, lastName, email, password, role, imageUrl });
+    // Then immediately log them in to get a token
+    const res = await api.post("/users/login", { email, password });
+    const { token, user: loggedInUser } = res.data;
+    localStorage.setItem("token", token);
+    setUser(loggedInUser);
   };
 
   const login = async (email, password) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    const res = await api.post("/users/login", { email, password });
+    const { token, user: loggedInUser } = res.data;
+    localStorage.setItem("token", data.token);
+    setUser(loggedInUser);
   };
 
-  const logout = async () => {
-    await auth.signOut();
-    // onAuthStateChanged will clear user
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
   };
 
   return (

@@ -1,0 +1,117 @@
+/* page root */
+.login-page {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Lora', serif;
+    color: #3b2f4a;
+  }
+  
+  /* left half: violet and photo overlay */
+  /* src/pages/LoginPage.css */
+.login-left {
+    flex: 1;
+    position: relative;
+    background: url("/pic.png") center/cover no-repeat;
+  }
+  
+  /* add a dark overlay on top of the photo */
+  .login-left::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.45);    /* 45% black overlay */
+  }
+  
+  /* make sure children sit above the overlay */
+  .login-left,
+  .login-left * {
+    position: relative;
+    z-index: 1;
+  }
+  
+  
+  
+  /* right half: form container */
+  .login-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+  }
+  
+  .login-form {
+    width: 320px;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  
+  .login-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #5c3d6d;
+  }
+  
+  .login-form label {
+    display: block;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .login-form input[type="email"],
+  .login-form input[type="password"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    margin-top: 0.3rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+  }
+  
+  .login-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .login-options a {
+    color: #8b56a5;
+    text-decoration: none;
+  }
+  
+  .login-options a:hover {
+    text-decoration: underline;
+  }
+  
+  .login-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(90deg, #66e2d9, #60c0e2);
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    color: #fff;
+    cursor: pointer;
+    transition: filter 0.2s;
+  }
+  
+  .login-btn:hover {
+    filter: brightness(1.1);
+  }
+
+  .login-left img {
+    /* prevent it from ever growing larger than 300px wide */
+    max-width: 100px;
+    /* maintain its aspect ratio, but never taller than 70% of viewport height */
+    max-height: 50vh;
+    width: auto;
+    height: auto;
+  }
+  

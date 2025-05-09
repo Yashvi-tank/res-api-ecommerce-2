@@ -1,65 +1,31 @@
-import React, { useContext } from "react";
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-
-// Pages
-import HomePage      from "./pages/HomePage.jsx";
-import LogInPage     from "./pages/LogInPage.jsx";
-import SignUpPage    from "./pages/SignUpPage.jsx";
-import CreateProduct from "./pages/CreateProduct.jsx";
-import ProductDetail from "./pages/ProductDetail.jsx";
-import NotFoundPage  from "./pages/NotFoundPage.jsx";
-
-// Components
-import NavBar     from "./components/NavBar.jsx";
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar.jsx";
 import FooterComp from "./components/FooterComp.jsx";
-
-// Auth
-import { AuthContext } from "./context/AuthContext.jsx";
-
-const PrivateRoute = ({ children }) => {
-  const { user } = useContext(AuthContext);
-  return user ? children : <Navigate to="/login" replace />;
-};
+import HomePage from "./pages/HomePage.jsx";
+import CreateProduct from "./pages/CreateProduct.jsx";
+import LogInPage from "./pages/LogInPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
+import ProductDetail from "./pages/ProductDetail.jsx";
+import CartPage from "./pages/CartPage.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
 export default function App() {
   return (
-    <Router>
+    <>
       <NavBar />
-
-      <main className="container py-4">
+      <div className="container mt-4">
         <Routes>
-          <Route path="/"        element={<HomePage />} />
-          <Route path="/login"   element={<LogInPage />} />
-          <Route path="/signup"  element={<SignUpPage />} />
-
-          <Route
-            path="/create-product"
-            element={
-              <PrivateRoute>
-                <CreateProduct />
-              </PrivateRoute>
-            }
-          />
-
-          <Route
-            path="/product/:id"
-            element={
-              <PrivateRoute>
-                <ProductDetail />
-              </PrivateRoute>
-            }
-          />
-
+          <Route path="/" element={<HomePage />} />
+          <Route path="/create-product" element={<CreateProduct />} />
+          <Route path="/login" element={<LogInPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/product/:id" element={<ProductDetail />} />
+          <Route path="/cart" element={<CartPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
-      </main>
-
+      </div>
       <FooterComp />
-    </Router>
+    </>
   );
 }

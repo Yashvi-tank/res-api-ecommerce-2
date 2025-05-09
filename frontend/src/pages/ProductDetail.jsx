@@ -1,31 +1,37 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import api from '../services/api.js';
+import React, { useEffect, useState, useContext } from "react";
+import { useParams } from "react-router-dom";
+import api from "../services/api.js";
+import { CartContext } from "../context/CartContext.jsx";
 
-export default function ProductDetail() {
+function ProductDetail() {
   const { id } = useParams();
-  const [prod, setProd] = useState(null);
+  const [product, setProduct] = useState(null);
+  const { cart, addToCart, removeFromCart } = useContext(CartContext);
 
   useEffect(() => {
     api.get(`/products/${id}`)
-      .then(res => setProd(res.data))
+      .then(res => setProduct(res.data))
       .catch(console.error);
   }, [id]);
 
-  if (!prod) return <p>Loading…</p>;
+  if (!product) return <p>Loading…</p>;
+
+  const inCart = cart.some(item => item.id === product.id);
 
   return (
-    <div className="card mb-4">
-      <img
-        src={prod.imageUrl || 'https://via.placeholder.com/800x300'}
-        className="card-img-top"
-        alt={prod.name}
-      />
-      <div className="card-body">
-        <h2>{prod.name}</h2>
-        <p>{prod.description}</p>
-        <h4 className="text-primary">${prod.price.toFixed(2)}</h4>
-      </div>
+    <div style={{ maxWidth: '600px', margin: '2rem auto' }}>
+      {/* image, title, price, description… */}
+      <button
+        className={inCart ? "btn btn-danger" : "btn btn-primary"}
+        onClick={() =>
+          inCart ? removeFromCart(product.id) : addToCart(product)
+        }
+      >
+        {inCart ? "Remove from Cart" : "Add to Cart"}
+      </button>
     </div>
   );
 }
+
+// ← Make sure this line is present:
+export default ProductDetail;

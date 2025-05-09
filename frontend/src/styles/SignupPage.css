@@ -1,0 +1,79 @@
+/* SignupPage.css */
+
+/* Container for the two‐column layout */
+.signup-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem;
+    min-height: 80vh;
+    background-color: #fafafa;
+  }
+  
+  /* Left side: holds the illustration */
+  .signup-left {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Constrain the illustration’s size */
+  .signup-left img {
+    max-width: 300px;
+    max-height: 70vh;
+    width: auto;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* Right side: holds the signup form */
+  .signup-right {
+    flex: 1;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* Headline */
+  .signup-right h2 {
+    margin-bottom: 1rem;
+    color: #5a2d82; /* violet heading */
+    font-family: 'Georgia', serif;
+  }
+  
+  /* Form fields */
+  .signup-right form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .signup-right input,
+  .signup-right select {
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  /* Submit button */
+  .signup-right button {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #a67ccf; /* violet */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .signup-right button:hover {
+    background-color: #8b5db0;
+  }
+  

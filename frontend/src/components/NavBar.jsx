@@ -1,36 +1,33 @@
-import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext.jsx';
+import React from "react";
+import { NavLink } from "react-router-dom";
+import "../styles/NavBar.css";
 
 export default function NavBar() {
-  const { user, logout } = useContext(AuthContext);
-
   return (
-    <nav className="navbar navbar-expand-lg bg-primary navbar-dark px-4">
-      <Link className="navbar-brand" to="/">
-        E-commerce
-      </Link>
-      <div className="ms-auto">
-        {!user ? (
-          <>
-            <Link className="btn btn-outline-light me-2" to="/login">
-              Login
-            </Link>
-            <Link className="btn btn-success" to="/signup">
-              Sign up
-            </Link>
-          </>
-        ) : (
-          <>
-            <span className="text-light me-3">Hello, {user.firstName}</span>
-            <Link className="btn btn-outline-light me-2" to="/create-product">
-              Add Product
-            </Link>
-            <button className="btn btn-danger" onClick={logout}>
-              Logout
-            </button>
-          </>
-        )}
+    <nav className="navbar">
+      <div className="navbar-container">
+        <NavLink to="/" className="navbar-brand">
+          VelvetBeauty
+        </NavLink>
+        <ul className="nav-links">
+          <li>
+            <NavLink to="/" end>
+              Home
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/create-product">Add Product</NavLink>
+          </li>
+          <li>
+            <NavLink to="/login">Login</NavLink>
+          </li>
+          <li>
+            <NavLink to="/signup">Sign Up</NavLink>
+          </li>
+          <li>
+            <NavLink to="/cart">Cart (0)</NavLink>
+          </li>
+        </ul>
       </div>
     </nav>
   );

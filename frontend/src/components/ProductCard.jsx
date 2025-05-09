@@ -1,22 +1,32 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import "../styles/ProductCard.css";
 
-const ProductCard = ({ product }) => (
-  <div className="card h-100">
-    {product.imageUrl && (
-      <img src={product.imageUrl} className="card-img-top" alt={product.name} />
-    )}
-    <div className="card-body d-flex flex-column">
-      <h5 className="card-title">{product.name}</h5>
-      <p className="card-text text-truncate">{product.description}</p>
-      <div className="mt-auto">
-        <p className="fw-bold">${product.price.toFixed(2)}</p>
-        <Link to={`/product/${product._id}`} className="btn btn-sm btn-primary">
-          View
-        </Link>
+export default function ProductCard({
+  name = "Untitled",
+  description = "",
+  price = 0,
+  imageUrl = "",
+  onAdd = () => {},
+}) {
+  // fall back if imageUrl is falsy
+  const src = imageUrl || "https://via.placeholder.com/300?text=No+Image";
+
+  return (
+    <div className="prod-card">
+      <div className="prod-img-wrapper">
+        <img src={src} alt={name} />
+      </div>
+
+      <div className="prod-info">
+        <h3>{name}</h3>
+        <p className="prod-desc">{description}</p>
+        <div className="prod-footer">
+          <span className="prod-price">${Number(price).toFixed(2)}</span>
+          <button className="btn-cart" onClick={onAdd}>
+            Add to Cart
+          </button>
+        </div>
       </div>
     </div>
-  </div>
-);
-
-export default ProductCard;
+  );
+}

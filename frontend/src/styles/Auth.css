@@ -1,0 +1,106 @@
+/* Full-viewport two-panel wrapper */
+.auth-page {
+    display: flex;
+    min-height: 100vh;
+    margin: 0;
+  }
+  
+  /* Left side with violet background and optional image */
+  .auth-left {
+    flex: 1;
+    background: #e3e1f9; /* light violet */
+    position: relative;
+  }
+  .auth-left::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: url("/images/auth-bg.jpg") center/cover no-repeat;
+    opacity: 0.4;
+  }
+  
+  /* Right side form panel */
+  .auth-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+  }
+  
+  .auth-form {
+    width: 360px;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  
+  .auth-form h2 {
+    margin-bottom: 1.5rem;
+    color: #1f2041;
+    font-size: 1.75rem;
+    text-align: center;
+  }
+  
+  .auth-form label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+    color: #555;
+  }
+  
+  .auth-form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+  }
+  
+  .auth-form input:focus {
+    border-color: #6d42d1;
+    box-shadow: 0 0 0 2px rgba(109, 66, 209, 0.2);
+  }
+  
+  .toggle-password {
+    position: absolute;
+    right: 1rem;
+    top: 48%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #888;
+  }
+  
+  .auth-form .checkbox-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .auth-form .checkbox-group input {
+    margin-right: 0.5rem;
+  }
+  
+  .auth-form button {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(90deg, #6ddfd1 0%, #3cb7b1 100%);
+    border: none;
+    border-radius: 0.375rem;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  
+  .auth-form .forgot {
+    display: block;
+    margin-top: 0.75rem;
+    text-align: right;
+    font-size: 0.875rem;
+    color: #6d42d1;
+    text-decoration: none;
+  }
+  

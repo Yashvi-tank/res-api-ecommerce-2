@@ -1,41 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api.js';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from "react";
+import api from "../services/api.js";
+import ProductCard from "../components/ProductCard.jsx";
+import { CartContext } from "../context/CartContext.jsx";
+import "../styles/HomePage.css";
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
+  const { addToCart } = useContext(CartContext);
 
   useEffect(() => {
-    api.get('/products')
-      .then(res => setProducts(res.data))
-      .catch(console.error);
+    api
+      .get("/products")
+      .then((res) => setProducts(Array.isArray(res.data) ? res.data : []))
+      .catch((err) => {
+        console.error("could not load products:", err);
+        setProducts([]);
+      });
   }, []);
 
   return (
-    <>
-      <h1 className="mb-4">Products</h1>
-      <div className="row g-3">
-        {products.map(p => (
-          <div className="col-md-4" key={p._id}>
-            <div className="card h-100">
-              <img
-                src={p.imageUrl || 'https://via.placeholder.com/400x200'}
-                className="card-img-top"
-                alt={p.name}
-              />
-              <div className="card-body d-flex flex-column">
-                <h5 className="card-title">{p.name}</h5>
-                <p className="card-text text-truncate">{p.description}</p>
-                <div className="mt-auto">
-                  <Link to={`/product/${p._id}`} className="btn btn-primary w-100">
-                    View
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
+    <div className="posy-home">
+      {/* …your hero & categories sections… */}
+
+      <section className="products">
+        <h2>See What’s New</h2>
+        <div className="grid">
+          {products.map((p) => (
+            <ProductCard
+              key={p._id}
+              name={p.name}
+              description={p.description}
+              price={p.price}
+              imageUrl={p.imageUrl}
+              onAdd={() => addToCart(p)}
+            />
+          ))}
+        </div>
+        <button className="btn-secondary">View All</button>
+      </section>
+
+      {/* …join list / about store… */}
+    </div>
   );
 }
